@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography,Link } from '@mui/material';
-import { registerUser } from '../registerApi'; // Importation du service pour l'inscription
+import { registerUser } from '../user/registerApi'; 
 import { Link as RouterLink } from 'react-router-dom';
 
 export function RegisterPage() {
@@ -10,28 +10,40 @@ export function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    
-    if (!username || !email || !password) {
-      setError('Tous les champs doivent etre renseignés.');
-      return;
-    }
 
-    registerUser({ username, email, password })
-      .then(() => {
-        setSuccess('Utilisateur enregistré avec succès.');
-        setError('');
-      })
-      .catch((err) => {
-        setError(err.message);
-        setSuccess('');
-      });
+
+    const handleError = (error) => {
+      setError(error.message || 'Une erreur est survenue');
+      setSuccess('');
   };
+  
+  const handleSuccess = (session) => {
+      setSuccess('Vous vous êtes enregistré avec succès.');
+      setError('');
+  };
+  
+  const handleSubmit = (event) => {
+      event.preventDefault();
+  
+      if (!username || !email || !password) {
+          setError('Tous les champs doivent être renseignés.');
+          return;
+      }
+  
+      const user = {
+          username: username,
+          email: email,
+          password: password,
+      };
+  
+      registerUser(user, handleSuccess, handleError);
+  };
+  
+  
 
   return (
     <Box sx={{ maxWidth: 400, margin: '0 auto', padding: 3 }}>
-      <Typography variant="h4" gutterBottom>Inscription</Typography>
+      <Typography variant="h4" gutterBottom align='center'>Inscription</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           label="Nom d'utilisateur"
@@ -67,6 +79,7 @@ export function RegisterPage() {
           variant="contained"
           color="primary"
           fullWidth
+          onClick={handleSubmit}
           sx={{ marginTop: 2 }}
         >
             S&apos;inscrire

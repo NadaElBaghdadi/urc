@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { loginUser } from "../user/loginApi"; 
-import { TextField, Button, Typography, Box ,Link} from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { TextField, Button, Typography, Box, Link } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom'; 
+
 export function Login() {
   const [error, setError] = useState({});
   const [session, setSession] = useState({});
+  const navigate = useNavigate(); 
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -22,6 +24,10 @@ export function Login() {
         setSession(result);
         form.reset();
         setError({});
+        
+        localStorage.setItem('token', result.token);
+        
+        navigate("/users-and-rooms"); 
       },
       (loginError) => {
         console.log(loginError);
@@ -74,8 +80,7 @@ export function Login() {
         </Typography>
       )}
 
-
-       <Typography variant="body2" color="textSecondary" align="center" sx={{ marginTop: 2 }}>
+      <Typography variant="body2" color="textSecondary" align="center" sx={{ marginTop: 2 }}>
         Pas encore de compte ?{" "}
         <Link component={RouterLink} to="/register">
           Inscrivez-vous ici
