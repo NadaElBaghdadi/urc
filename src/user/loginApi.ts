@@ -13,6 +13,7 @@ export function loginUser(user: User, onResult: SessionCallback, onError: ErrorC
         .then(async (response) => {
             if (response.ok) {
                 const session = await response.json() as Session;
+                
                 sessionStorage.setItem('token', session.token);
                 sessionStorage.setItem('externalId', session.externalId);
                 sessionStorage.setItem('username', session.username || "");
