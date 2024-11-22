@@ -14,6 +14,8 @@ function App() {
         <Route path="/register" element={<RegisterPage/>} />
         <Route path="/messages" element={<Chat/>}/>
         <Route path="/messages/user/:userId" element={<Chat />} /> ;  
+        <Route path="/messages/room/:roomId" element={<Chat />} /> ;  
+
       </Routes>
     </Router>
   );

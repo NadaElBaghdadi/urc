@@ -46,22 +46,23 @@ export const fetchMessagesGrp = createAsyncThunk(
 // Action pour envoyer un message
 export const sendMessage = createAsyncThunk(
   'messages/sendMessage',
-  async ({ receiverId, content }, { rejectWithValue }) => {
+  async ( message , { rejectWithValue }) => {
     try {
       const token = sessionStorage.getItem('token');
       const senderId = Number(sessionStorage.getItem('id'));
       console.log("senderId",sessionStorage.getItem('id'))
       if (!token || !senderId) return rejectWithValue('Token or sender ID missing');
 
+      console.log("message",message)
 
       const response = await axios.post(
         '/api/messages',
         {
-          receiver_id: receiverId,
-          content: content,
-          sender_id: senderId,
-          sender_name:"test",
-          receiver_type: 'user',
+          receiver_id: message.receiver_id,
+          content: message.content,
+          sender_id: message.sender_id,
+          sender_name:message.sender_name,
+          receiver_type: message.receiver_type,
         },
         {
           headers: {

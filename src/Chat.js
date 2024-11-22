@@ -3,110 +3,145 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages, sendMessage } from './store/messagesSlice';
 import { useParams } from 'react-router-dom';
 import UsersAndRoomsList from './UsersAndRoomsList';
-import {TextField, Button } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import { TextField, Button, Box, Typography, AppBar, Toolbar, List } from '@mui/material';
 
 export const Chat = () => {
-  const { userId } = useParams();
+  const { userId, roomId } = useParams(); // Détecte si on est dans un contexte utilisateur ou salon
   const dispatch = useDispatch();
-  const { list: messages, loading, error } = useSelector((state) => state.messages);
   const [newMessage, setNewMessage] = useState('');
-  const handleLogout = () => {
-    sessionStorage.removeItem("authToken"); 
-    sessionStorage.removeItem("id"); 
-    sessionStorage.removeItem("username"); 
+  const { list: messages, loading, error } = useSelector((state) => state.messages);
 
-    window.location.href = "/";
-  };
+  const receiverType = userId ? 'user' : 'room';
+  const receiverId = userId || roomId;
 
   useEffect(() => {
-    if (userId) {
-      dispatch(fetchMessages({ receiverId: Number(userId), receiverType: 'user' }));
+    console.log(`Receiver ID: ${receiverId}, Receiver Type: ${receiverType}`);
+    // Vous pouvez utiliser receiverId et receiverType pour charger les messages ici
+  }, [receiverId, receiverType]);
+
+  useEffect(() => {
+    if (receiverId) {
+      dispatch(fetchMessages({ receiverId: Number(receiverId), receiverType }));
     }
-  }, [dispatch, userId]);
+  }, [dispatch, receiverId, receiverType]);
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    console.log('dispatch',dispatch(sendMessage({ receiverId: Number(userId), content: newMessage.trim() })));
+    if (!newMessage.trim() || !receiverId) return;
+    console.log('dispatch', dispatch(
+      sendMessage({
+        receiver_id: Number(receiverId),
+        receiver_type :receiverType,
+        content: newMessage.trim(),
+        sender_id: Number(sessionStorage.getItem('id')),
+        sender_name: sessionStorage.getItem('username'),
+      })
+    ));
 
-    setNewMessage('');
+
+
+    setNewMessage(''); // Effacer la zone de saisie
+  };
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    window.location.href = '/';
   };
 
   return (
-    
-    <div style={{display:"flex",flex:"column" , flexDirection : "column" }} className="flex column">
-    <div className="w-[30%] bg-white border-r border-gray-300">
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      {/* Barre de navigation */}
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
             Ubo Relay Chat
           </Typography>
-          <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          <Button color="inherit" onClick={handleLogout}>
+            Logout
+          </Button>
         </Toolbar>
       </AppBar>
+
+      {/* Contenu principal */}
+      <Box sx={{ display: 'flex', flexGrow: 1 }}>
+        {/* Sidebar avec UsersAndRoomsList */}
+        <Box sx={{ width: '30%', borderRight: '1px solid #ddd', overflowY: 'auto' }}>
+          <UsersAndRoomsList />
+        </Box>
+
+        {/* Zone de discussion */}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Liste des messages */}
+          <Box sx={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+            {loading ? (
+              <Typography>Chargement des messages...</Typography>
+            ) : error ? (
+              <Typography color="error">Erreur lors du chargement des messages.</Typography>
+            ) : (
+              <List sx={{ padding: 0 }}>
+                {messages
+                  .filter((message) =>
+                    receiverType === 'user'
+                      ? (message.sender_id === Number(sessionStorage.getItem('id')) &&
+                          message.receiver_id === Number(receiverId)) ||
+                        (message.sender_id === Number(receiverId) &&
+                          message.receiver_id === Number(sessionStorage.getItem('id')))
+                      : message.receiver_id === Number(receiverId) && message.receiver_type === 'room'
+                  )
+                  .map((message) => (
+                    <Box
+                      key={message.message_id}
+                      sx={{
+                        display: 'flex',
+                        justifyContent:
+                          message.sender_id === Number(sessionStorage.getItem('id')) ? 'flex-end' : 'flex-start',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          maxWidth: '60%',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          backgroundColor:
+                            message.sender_id === Number(sessionStorage.getItem('id')) ? '#1976d2' : '#f5f5f5',
+                          color: message.sender_id === Number(sessionStorage.getItem('id')) ? 'white' : 'black',
+                        }}
+                      >
+                        <Typography variant="body2">{message.content}</Typography>
+                        <Typography variant="caption" sx={{ display: 'block', marginTop: '5px', color: '#888' }}>
+                          {new Date(message.timestamp).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+              </List>
+            )}
+          </Box>
+
+          {/* Zone de saisie */}
+          <Box
+            sx={{
+              padding: '10px',
+              borderTop: '1px solid #ddd',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Tapez votre message ici..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+            />
+            <Button variant="contained" color="primary" onClick={handleSendMessage}>
+              Envoyer
+            </Button>
+          </Box>
+        </Box>
+      </Box>
     </Box>
-      <UsersAndRoomsList />
-    </div>
-  
-    <div  className="w-[70%] flex flex-col">
-      <div className=" p-4 overflow-y-auto pb-24">
-        {loading ? (
-          <div>Chargement des messages...</div>
-        ) : error ? (
-          <div>Erreur lors du chargement des messages</div>
-        ) : (
-          <ul className="space-y-4">
-            {messages.map((message) => (
-              <li
-                key={message.message_id}
-                className={`flex ${message.sender_id === Number(sessionStorage.getItem('id')) ? 'justify-end' : ''}`}
-              >
-                <div
-                  className={`p-3 rounded-lg ${
-                    message.sender_id === Number(sessionStorage.getItem('id'))
-                      ? 'bg-blue-300 text-white'
-                      : 'bg-gray-200 text-black'
-                  }`}
-                >
-                  <p>{message.content}</p>
-                  <span className="text-xs text-gray-500">{message.timestamp}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-  
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', padding: '10px' }}
-      >
-        <TextField
-          variant="outlined"
-          placeholder="Message"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1"
-          multiline
-          maxRows={3}
-          sx={{ flex: 2 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSendMessage}
-          className="h-10"
-          sx={{ minWidth: '150px', height: '40px' }}
-        >
-          Envoyer
-        </Button>
-      </div>
-    </div>
-  </div>
-  
   );
 };
 

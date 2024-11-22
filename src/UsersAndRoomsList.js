@@ -15,9 +15,13 @@ export default function UsersAndRoomsList() {
         dispatch(setSelectedUser(userId));  
         navigate(`/messages/user/${userId}`);  
     };
+    const handleRoomClick = (roomId) => {
+        dispatch(setSelectedUser(roomId));  
+        navigate(`/messages/room/${roomId}`);  
+    };
 
     return (
-        <Box sx={{ padding: '20px', backgroundColor: '#f7f7f7', borderRadius: '8px', maxWidth: '30%' }}>
+        <Box sx={{ padding: '20px', backgroundColor: '#f7f7f7', borderRadius: '8px', maxWidth: '100%' }}>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#1c1c1c' }}>
                 Utilisateurs
             </Typography>
@@ -28,7 +32,7 @@ export default function UsersAndRoomsList() {
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#1c1c1c' }}>
                 Salons
             </Typography>
-            <RoomList />
+            <RoomList onRoomClick = {handleRoomClick}/>
         </Box>
     );
 }

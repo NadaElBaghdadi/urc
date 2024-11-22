@@ -1,4 +1,3 @@
-// api/rooms.js
 
 import { db } from '@vercel/postgres';
 

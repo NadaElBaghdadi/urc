@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 import { format } from 'date-fns';
 
-export const RoomList = () => {
+export const RoomList = ({ onRoomClick }) => {
   const [rooms, setRooms] = useState([]);
   const [error, setError] = useState(null);
 
@@ -42,6 +42,7 @@ export const RoomList = () => {
       {rooms.map((room) => (
         <ListItem
           key={room.room_id}
+          onClick={() => onRoomClick && onRoomClick(room.room_id)}
           sx={{ padding: '2px', backgroundColor: '#fff', borderRadius: '8px', marginBottom: '10px', boxShadow: 2 }}
         >
           <ListItemAvatar>

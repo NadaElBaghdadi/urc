@@ -17,6 +17,7 @@ const userSlice = createSlice({
       state.userDetails = {};
       state.selectedUser = null;
     },
+    
     setSelectedUser: (state, action) => {
       state.selectedUser = action.payload;
     },
