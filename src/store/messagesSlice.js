@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Action pour récupérer les messages
 export const fetchMessages = createAsyncThunk(
   'messages/fetchMessages',
   async ({ receiverId, receiverType }, { rejectWithValue }) => {
@@ -22,7 +21,6 @@ export const fetchMessages = createAsyncThunk(
   }
 );
 
-// Action pour récupérer les messages de groupe
 export const fetchMessagesGrp = createAsyncThunk(
   'messages/fetchMessagesGrp',
   async ({ receiverId, receiverType }, { rejectWithValue }) => {
@@ -109,7 +107,7 @@ const messagesSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
-        state.list.push(action.payload); // Ajoute le nouveau message à la liste
+        state.list.push(action.payload); 
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.error = action.payload;
@@ -119,7 +117,6 @@ const messagesSlice = createSlice({
 
 export const { addMessage } = messagesSlice.actions;
 
-// Selectors
 export const selectMessages = (state) => state.messages.list;
 export const selectMessagesgrp = (state) => state.messages.listgrp;
 export const selectMessagesLoading = (state) => state.messages.loading;

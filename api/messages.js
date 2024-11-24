@@ -2,12 +2,12 @@ import { getConnecterUser, triggerNotConnected } from "../lib/session";
 import { db } from "@vercel/postgres";
 
 export const config = {
-    runtime: "edge", // Runtime Edge pour meilleure performance
+    runtime: "edge", 
 };
 
 export default async function handler(request) {
     try {
-        // Vérifie la méthode HTTP
+        
         if (request.method === "POST") {
             return await handlePost(request);
         } else if (request.method === "GET") {
@@ -27,7 +27,6 @@ export default async function handler(request) {
     }
 }
 
-// Gestion de POST : Envoi de message
 async function handlePost(request) {
     try {
         const user = await getConnecterUser(request);
@@ -50,7 +49,6 @@ async function handlePost(request) {
             });
         }
 
-        // Vérification si le destinataire existe (utilisateur uniquement)
         if (receiver_type === "user") {
             const receiverResult = await db.sql`
                 SELECT user_id 
@@ -79,7 +77,6 @@ async function handlePost(request) {
             }
         }
 
-        // Insérer le message
         const result = await db.sql`
             INSERT INTO messages (sender_id, sender_name, receiver_id, content, receiver_type, timestamp)
             VALUES (${user.id}, ${user.username}, ${receiver_id}, ${content}, ${receiver_type}, NOW())
@@ -107,7 +104,6 @@ async function handlePost(request) {
     }
 }
 
-// Gestion de GET : Récupération des messages
 async function handleGet(request) {
     try {
         const user = await getConnecterUser(request);
@@ -133,13 +129,12 @@ async function handleGet(request) {
 
         let messagesQuery;
 
-        // Récupérer les messages selon le type de destinataire
         if (receiver_type === "user") {
             messagesQuery = db.sql`
                 SELECT message_id, sender_id, sender_name, receiver_id, content, receiver_type, timestamp
                 FROM messages
-                WHERE (receiver_id = ${user.id} OR sender_id = ${user.id})
-                AND receiver_id = ${receiver_id}
+                WHERE ((receiver_id = ${user.id} OR sender_id = ${user.id})
+                AND (receiver_id = ${receiver_id} OR sender_id=${receiver_id}))
                 ORDER BY timestamp ASC;
             `;
         } else if (receiver_type === "room") {

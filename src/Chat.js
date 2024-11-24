@@ -6,7 +6,7 @@ import UsersAndRoomsList from './UsersAndRoomsList';
 import { TextField, Button, Box, Typography, AppBar, Toolbar, List } from '@mui/material';
 
 export const Chat = () => {
-  const { userId, roomId } = useParams(); // Détecte si on est dans un contexte utilisateur ou salon
+  const { userId, roomId } = useParams(); 
   const dispatch = useDispatch();
   const [newMessage, setNewMessage] = useState('');
   const { list: messages, loading, error } = useSelector((state) => state.messages);
@@ -16,7 +16,6 @@ export const Chat = () => {
 
   useEffect(() => {
     console.log(`Receiver ID: ${receiverId}, Receiver Type: ${receiverType}`);
-    // Vous pouvez utiliser receiverId et receiverType pour charger les messages ici
   }, [receiverId, receiverType]);
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export const Chat = () => {
 
 
 
-    setNewMessage(''); // Effacer la zone de saisie
+    setNewMessage('');
   };
 
   const handleLogout = () => {
@@ -49,7 +48,6 @@ export const Chat = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* Barre de navigation */}
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
@@ -61,16 +59,12 @@ export const Chat = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Contenu principal */}
       <Box sx={{ display: 'flex', flexGrow: 1 }}>
-        {/* Sidebar avec UsersAndRoomsList */}
         <Box sx={{ width: '30%', borderRight: '1px solid #ddd', overflowY: 'auto' }}>
           <UsersAndRoomsList />
         </Box>
 
-        {/* Zone de discussion */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Liste des messages */}
           <Box sx={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
             {loading ? (
               <Typography>Chargement des messages...</Typography>
@@ -97,28 +91,46 @@ export const Chat = () => {
                         marginBottom: '10px',
                       }}
                     >
-                      <Box
-                        sx={{
-                          maxWidth: '60%',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          backgroundColor:
-                            message.sender_id === Number(sessionStorage.getItem('id')) ? '#1976d2' : '#f5f5f5',
-                          color: message.sender_id === Number(sessionStorage.getItem('id')) ? 'white' : 'black',
-                        }}
-                      >
-                        <Typography variant="body2">{message.content}</Typography>
-                        <Typography variant="caption" sx={{ display: 'block', marginTop: '5px', color: '#888' }}>
-                          {new Date(message.timestamp).toLocaleString()}
-                        </Typography>
-                      </Box>
+                     <Box sx={{
+    maxWidth: '60%',
+    padding: '5px',
+    borderRadius: '8px',
+    backgroundColor:
+      message.sender_id === Number(sessionStorage.getItem('id')) ? '#1976d2' : '#f5f5f5',
+    color: message.sender_id === Number(sessionStorage.getItem('id')) ? 'white' : 'black',
+  }}
+>
+  <Typography
+    variant="subtitle2"
+    sx={{
+      fontWeight: 'bold',
+      color: message.sender_id === Number(sessionStorage.getItem('id')) ? 'white' : 'black',
+      marginBottom: '5px',
+    }}
+  >
+    {message.sender_name}
+  </Typography>
+
+  <Typography variant="body2">{message.content}</Typography>
+
+  <Typography
+    variant="caption"
+    sx={{
+      display: 'block',
+      marginTop: '5px',
+      color: message.sender_id === Number(sessionStorage.getItem('id')) ? '#ddd' : '#888',
+    }}
+  >
+{new Date(message.timestamp).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })}{' '}
+{new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}  </Typography>
+</Box>
+
                     </Box>
                   ))}
               </List>
             )}
           </Box>
 
-          {/* Zone de saisie */}
           <Box
             sx={{
               padding: '10px',
